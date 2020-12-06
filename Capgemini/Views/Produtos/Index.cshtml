@@ -1,0 +1,344 @@
+﻿@model IEnumerable<ProdutoView>
+@{
+    Layout = null;
+    ViewData["Title"] = "Index";
+}
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+<link href="~/lib/DataTables/DataTables-1.10.22/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="~/lib/DataTables/FixedHeader-3.1.7/css/fixedHeader.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/lib/DataTables/DataTables-1.10.22/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+<link href="~/lib/DataTables.css" rel="stylesheet" />
+
+<style>
+    div.dataTables_wrapper div.dataTables_length select {
+        width: 60px !important;
+    }
+
+    .p1 {
+        margin-bottom: 3px;
+    }
+</style>
+
+<div class="row mt-3">
+    <div class="col-md-10 offset-md-1">
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <span style="float:left;height: 32px;line-height: 50px;"><p style="margin: 0;font-size: 1rem;font-weight: 500;">Upload Excel</p></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <hr style="margin-top:0;margin-bottom:5px; border-top: 1px solid rgb(130,0,0)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-4 offset-md-1">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <form enctype="multipart/form-data">
+                    <span><input class="btn btn-outline-primary" id="upload" type=file name="files[]"></span>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table id="tb" class="table table-striped table-bordered display nowrap" style="width:100%;font-size:12px;">
+                        <thead>
+                            <tr>
+                                <td>Data Entrega</td>
+                                <td>Nome do Produto</td>
+                                <td>Quantidade</td>
+                                <td>Valor Unitário</td>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-10 offset-md-1">
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <span style="float:left;height: 32px;line-height: 50px;"><p style="margin: 0;font-size: 1rem;font-weight: 500;">Get by Id</p></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <hr style="margin-top:0;margin-bottom:5px; border-top: 1px solid rgb(130,0,0)" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-4 offset-md-1">
+        <div class="row">
+            <div class="col-md-15 mb-3">
+                <input id="GetId" type="text" class="form-control input-sm" />
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-primary" id="GetById">Pesquisar</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table id="tbid" class="table table-bordered" style="width:100%;font-size:12px; border:1px solid #ddd;">
+                        <thead>
+                            <tr>
+                                <td>Data Entrega</td>
+                                <td>Nome do Produto</td>
+                                <td>Quantidade</td>
+                                <td>Valor Unitário</td>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="import">
+    <div class="modal-dialog" style="width:1200px;max-width:1200px;">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Foram encontrados os seguintes erros</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table id="tbimp" class="table table-bordered" style="width:100%;font-size:12px; border:1px solid #ddd;">
+                                <thead>
+                                    <tr>
+                                        <td style="width:10%;text-align:center;">Data Entrega</td>
+                                        <td style="width:30%;">Nome do Produto</td>
+                                        <td style="width:8%;text-align:center;">Quantidade</td>
+                                        <td style="width:12%;">Valor Unitário</td>
+                                        <td>Erros</td>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+
+
+<script src="~/lib/DataTables/DataTables-1.10.22/js/jquery.dataTables.min.js"></script>
+<script src="~/lib/DataTables/DataTables-1.10.22/js/dataTables.bootstrap4.js"></script>
+<script src="~/lib/DataTables/FixedHeader-3.1.7/js/fixedHeader.bootstrap4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        load();
+    });
+
+    $('#GetById').on('click', function () {
+        if ($('#GetId').val() != '') {
+            var url = '/api/ProdutosApi/' + $('#GetId').val();
+            $.ajax({
+                url: url,
+                type: "GET",
+                contentType: "application/json",
+                success: function (data, textStatus, xhr) {
+                    var dt = new Date(data.dataEntrega);
+                    var ndt = ("0" + dt.getDate()).slice(-2) + "/" + ("0" + (dt.getMonth() + 1)).slice(-2) + "/" + dt.getFullYear();
+                    var htm = '<tr><td>' + ndt + '</td><td>' + data.nomedoProduto + '</td><td>' + data.quantidade + '</td><td>' + data.valorUnitario + '</td></tr>';
+                    $("#tbid > tbody").html("");
+                    $("#tbid tbody").append(htm);
+                    console.log(xhr.status);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    if (xhr.status == 400) {
+                        var htm = '<tr><td colspan="4" style="color:red;">Não foram encontrados registo</td></tr>';
+                        $("#tbid > tbody").html("");
+                        $("#tbid tbody").append(htm);
+                    }
+                }
+            });
+        }
+        else {
+            var htm = '<tr><td colspan="4" style="color:red;">Não foi indicado um registo a pesquisar</td></tr>';
+            $("#tbid > tbody").html("");
+            $("#tbid tbody").append(htm);
+        }
+
+    });
+
+    function load() {
+        var table = $('#tb').DataTable({
+            "processing": true,
+            responsive: true,
+            columnDefs: [
+                {
+                    type: 'datetime-moment', target: 0
+                }
+            ],
+            "ajax": {
+                "url": "/api/ProdutosApi",
+                "type": "GET",
+                "dataType": "json",
+                "dataSrc": ""
+            },
+            columns: [
+                {
+                    data: "dataEntrega",
+                    render: function (data, type, row) {
+                        var dt = new Date(data);
+                        return ("0" + dt.getDate()).slice(-2) + "/" + ("0" + (dt.getMonth() + 1)).slice(-2) + "/" + dt.getFullYear();
+                    }
+                },
+                {
+                    data: "nomedoProduto"
+                },
+                {
+                    data: "quantidade"
+                },
+                {
+                    data: "valorUnitario"
+                }
+
+            ],
+            "lengthMenu": [[4, 6, 10, 25, 50, -1], [3, 5, 10, 25, 50, "Todos"]],
+            "pageLength": 4,
+            "destroy": true
+        });
+    }
+
+    var ExcelToJSON = function () {
+
+        this.parseExcel = function (file) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var data = e.target.result;
+                var workbook = XLSX.read(data, {
+                    type: 'binary'
+                });
+                workbook.SheetNames.forEach(function (sheetName) {
+
+                    var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+
+                    // remover espaços em branco e acentos da key
+                    XL_row_object.forEach(function (e, i) {
+                        Object.keys(e).forEach(function (key) {
+                            var val = e[key],
+                                newKey = key.replace(/\s+/g, '').replace(new RegExp(/[àáâãäå]/g), "a");
+                            delete XL_row_object[i][key];
+                            XL_row_object[i][newKey] = val;
+                        });
+                    });
+
+                    var json_object = JSON.stringify(XL_row_object);
+                    $.ajax({
+                        url: '/api/ProdutosApi',
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(XL_row_object),
+
+                        success: function (data, textStatus, xhr) {
+                            console.log(xhr.status);
+                            load();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            var htm = '';
+                            if (xhr.status == 400) {
+                                $.each(xhr.responseJSON, function (a, b) {
+                                    var bgdata = "white";
+                                    var bgnome = "white";
+                                    var bgqnti = "white";
+                                    var bgvalr = "white";
+                                    var dateIsLower = true;
+                                    var de = '';
+                                    if (b.dataEntrega != null) {
+                                        var today = new Date();
+                                        var dt = new Date(b.dataEntrega);
+                                        dateIsLower = dt < today
+                                        de = ("0" + dt.getDate()).slice(-2) + "/" + ("0" + (dt.getMonth() + 1)).slice(-2) + "/" + dt.getFullYear();
+                                    }
+                                    var np = b.nomedoProduto;
+                                    var qt = b.quantidade == null ? '' : b.quantidade;
+                                    var vu = b.valorUnitario;
+                                    if (b.dataEntrega = '' || dateIsLower) { bgdata = "red";}                                        
+                                    if (b.nomedoProduto = '' || b.nomedoProduto.length > 50) { bgnome = "red";}                                        
+                                    if (b.quantidade = '' || b.quantidade < 1) { bgqnti = "red";}                                        
+                                    if (b.valorUnitario = '' || b.valorUnitario <= 0) { bgvalr = "red";}
+                                        
+                                    var err = '';
+                                    $.each(b.error, function (c, d) {
+                                        err += '<p class="p1">' + d + '</p>';
+                                    });
+                                    htm += '<tr><td style="vertical-align: text-top;background-color:' + bgdata + ';">' + de + '</td>' +
+                                        '<td style="vertical-align: text-top;background-color:' + bgnome + ';">' + np + '</td>' +
+                                        '<td style="vertical-align: text-top;background-color:' + bgqnti + ';">' + qt + '</td>' +
+                                        '<td style="vertical-align: text-top;background-color:' + bgvalr + ';">' + vu.toFixed(2) + '</td>' +
+                                        '<td>' + err + '</td></tr>';
+                                });
+                                $("#tbimp > tbody").html("");
+                                $("#tbimp tbody").append(htm);
+                                $('#import').modal('toggle');
+
+                            }
+                        }
+                    });
+                })
+            };
+
+            reader.onerror = function (ex) {
+                console.log(ex);
+            };
+
+            reader.readAsBinaryString(file);
+        };
+    };
+
+
+    $('#upload').on('change', function (evt) {
+
+        var files = evt.target.files; // FileList object
+        var xl2json = new ExcelToJSON();
+        xl2json.parseExcel(files[0]);
+        $('#upload').val('');
+    });
+
+
+</script>
